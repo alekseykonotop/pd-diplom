@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'stores',
-    'registration',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -53,10 +53,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'orders.urls'
 
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,7 +124,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Customer user model without username
-AUTH_USER_MODEL = 'registration.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
