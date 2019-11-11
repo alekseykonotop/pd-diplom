@@ -7,8 +7,10 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from .tokens import account_activation_token
-from django.contrib.auth.models import User
-from django.core.mail import EmailMessage  # https://docs.djangoproject.com/en/2.2/topics/email/ - дока по send_mail
+from django.core.mail import EmailMessage
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 def signup(request):
@@ -27,10 +29,8 @@ def signup(request):
                 'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
-            email = EmailMessage(subject, message, [to_email, ])
-            print(f'Send Email to {to_email}')
+            email = EmailMessage(subject=subject, body=message, to=[to_email, ])
             email.send()
-            print(f'Email sent!!!!')
             return HttpResponse('Please confirm your email address to complete the registration')
     else:
         form = SignupForm()

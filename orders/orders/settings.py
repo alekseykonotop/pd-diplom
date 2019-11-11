@@ -130,7 +130,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Для отправки email для подтверждения регистрации
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
+EMAIL_USE_LOCALTIME = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'python.ru.2019.test@gmail.com'
 EMAIL_HOST_PASSWORD = 'pythonRU2019test'
