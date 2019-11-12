@@ -14,7 +14,7 @@ def get_timestamp_path(instance, filename):
 
 
 class Shop(models.Model):
-    official_name = models.CharField(max_length=50, verbose_name='Наименование организации')
+    official_name = models.CharField(max_length=50, verbose_name='Наименование организации', blank=True)
     trademark_name = models.CharField(max_length=50, verbose_name='Торговое название')
     slug = models.SlugField(max_length=200, db_index=True)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
@@ -36,4 +36,24 @@ class Shop(models.Model):
         ordering = ('-trademark_name',)
 
     def __str__(self):
-        return f'{self.trademark_name}'
+        return self.trademark_name
+
+    def get_absolute_url(self):
+        return reverse('stores:shop_detail', kwargs={'pk': self.pk})
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=40, verbose_name='Название')
+    slug = models.SlugField(max_length=200, db_index=True)
+    shops = models.ManyToManyField(Shop, verbose_name='Магазины', related_name='categories', blank=True)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = "Список категорий"
+        ordering = ('-name', )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('stores:category_detail', kwargs={'pk': self.pk})
