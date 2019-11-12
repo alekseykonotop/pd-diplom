@@ -123,6 +123,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Customer user model without username
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -137,3 +141,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'python.ru.2019.test@gmail.com'
 EMAIL_HOST_PASSWORD = 'pythonRU2019test'
 EMAIL_PORT = 587
+
