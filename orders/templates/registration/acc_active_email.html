@@ -1,5 +1,5 @@
 {% autoescape off %}
-Hi {{ user.username }},
-Please click on the link to confirm your registration,
+{{ user }}, спасибо за выбор нашей компании.
+Для завершения регистрации пожалуйста перейдите по ссылке для подтверждения вашего аккаунта:
 http://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}
 {% endautoescape %}

@@ -21,7 +21,7 @@ def signup(request):
             user.is_active = False
             user.save()
             current_site = get_current_site(request)
-            subject = 'Activate your blog account.'
+            subject = 'Активания вашего аккаунта в самом лучшем интернет магазине.'
             message = render_to_string('registration/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -31,7 +31,7 @@ def signup(request):
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(subject=subject, body=message, to=[to_email, ])
             email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+            return HttpResponse('Мы почти закончили. Пожалуйста проверьте сообщение на почте!')
     else:
         form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form})
@@ -48,6 +48,6 @@ def activate(request, uidb64, token):
         user.save()
         login(request, user)
         # return redirect('home')
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+        return HttpResponse('Спасибо, аккаунт подтвержден. Теперь вы можете перейти в созданию первого заказа.')
     else:
         return HttpResponse('Activation link is invalid!')
