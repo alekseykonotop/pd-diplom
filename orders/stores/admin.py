@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Shop, Category, Product, ProductInfo
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
 
 # Register your models here.
 
@@ -36,3 +36,19 @@ class ProductInfoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ProductInfo, ProductInfoAdmin)
+
+
+class ParameterAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+    search_fields = ('name', )
+
+
+admin.site.register(Parameter, ParameterAdmin)
+
+
+class ProductParameterAdmin(admin.ModelAdmin):
+    list_display = ('product_info', 'parameter', 'value')
+    search_fields = ('product_info', 'parameter', )
+
+
+admin.site.register(ProductParameter, ProductParameterAdmin)
