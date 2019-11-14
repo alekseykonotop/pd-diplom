@@ -57,3 +57,17 @@ class Category(models.Model):
 
     def get_absolute_url(self):
         return reverse('stores:category_detail', kwargs={'pk': self.pk})
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=80, verbose_name='Название')
+    category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', blank=True,
+                                 on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Продукт'
+        verbose_name_plural = "Список продуктов"
+        ordering = ('-name',)
+
+    def __str__(self):
+        return self.name
