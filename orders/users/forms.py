@@ -7,9 +7,10 @@ from .models import CustomUser
 class SignupForm(UserCreationForm):
     email = forms.EmailField(max_length=200, help_text='Required')
 
-    class Meta():  # Возможно класс наследования класса Meta надо удалить.
+    class Meta:
         model = CustomUser
-        fields = ('email', 'password1', 'password2', 'first_name', 'last_name', )
+        fields = ('email', 'password1', 'password2', 'last_name', 'first_name', 'middle_name',
+                  'company', 'position', 'type', )
 
 
 class CustomUserChangeForm(UserChangeForm):

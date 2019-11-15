@@ -14,6 +14,7 @@ USER_TYPE_CHOICES = (
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(verbose_name='Имя', max_length=40)
+    middle_name = models.CharField(verbose_name='Отчество', max_length=40, blank=True)
     last_name = models.CharField(verbose_name='Фамилия', max_length=40, blank=True)
     email = models.EmailField(_('email address'), unique=True)
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
@@ -32,6 +33,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Список пользователей'
         ordering = ('email',)
+
+    def get_full_name(self):
+        return f'{self.last_name} {self.first_name} {self.middle_name}'
+
+    # def get_short_name(self):
+    #     return f'{self.last_name} {str(self.first_name)[0]}. {str(self.middle_name)[0]}.'
 
     def __str__(self):
         #  return self.email
