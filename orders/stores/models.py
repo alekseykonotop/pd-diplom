@@ -96,8 +96,8 @@ class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
 
     class Meta:
-        verbose_name = 'Имя параметра'
-        verbose_name_plural = "Список имен параметров"
+        verbose_name = 'Характеристика'
+        verbose_name_plural = "Список характеристик"
         ordering = ('-name',)
 
     def __str__(self):
