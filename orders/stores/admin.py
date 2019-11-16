@@ -56,7 +56,7 @@ admin.site.register(ProductParameter, ProductParameterAdmin)
 
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('user', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'phone',)
-    search_fields = ('user', 'city', 'street', 'phone', )
+    search_fields = ('user__last_name', 'city', 'street', 'phone', )
 
 
 admin.site.register(Contact, ContactAdmin)
