@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Contact
 
 # Register your models here.
 
@@ -52,3 +52,11 @@ class ProductParameterAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ProductParameter, ProductParameterAdmin)
+
+
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('user', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'phone',)
+    search_fields = ('user', 'city', 'street', 'phone', )
+
+
+admin.site.register(Contact, ContactAdmin)
