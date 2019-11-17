@@ -5,9 +5,9 @@ from .models import Shop, Category, Product, ProductInfo, Parameter, ProductPara
 
 
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('trademark_name', 'slug', 'state', )
-    search_fields = ('trademark_name', 'state', )
-    prepopulated_fields = {'slug': ('trademark_name',)}
+    list_display = ('name', 'slug', 'state', )
+    search_fields = ('name', 'state', )
+    prepopulated_fields = {'slug': ('name',)}
 
 
 admin.site.register(Shop, ShopAdmin)

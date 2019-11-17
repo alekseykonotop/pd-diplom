@@ -20,12 +20,11 @@ STATE_CHOICES = (
 
 # Функция для добавляения пути для сохрания файла поля price модели Shop
 def get_timestamp_path(instance, filename):
-    return f'stores/prices/{instance.trademark_name}/{datetime.now().timestamp()}{splitext(filename)[1]}'
+    return f'stores/prices/{instance.name}/{datetime.now().timestamp()}{splitext(filename)[1]}'
 
 
 class Shop(models.Model):
-    official_name = models.CharField(max_length=50, verbose_name='Наименование организации', blank=True)
-    trademark_name = models.CharField(max_length=50, verbose_name='Торговое название')
+    name = models.CharField(max_length=50, verbose_name='Торговое название')
     slug = models.SlugField(max_length=200, db_index=True)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     user = models.OneToOneField(User, verbose_name='Пользователь',
@@ -43,10 +42,10 @@ class Shop(models.Model):
     class Meta:
         verbose_name = 'Магазин'
         verbose_name_plural = "Список магазинов"
-        ordering = ('-trademark_name',)
+        ordering = ('-name',)
 
     def __str__(self):
-        return self.trademark_name
+        return self.name
 
     def get_absolute_url(self):
         return reverse('stores:shop_detail', kwargs={'pk': self.pk})
@@ -149,9 +148,9 @@ class Contact(models.Model):
 
     def __str__(self):
         str_house = f', д. {self.house},' if self.house else ''
-        str_structure = f'корп. {self.structure},' if self.structure else ''
-        str_building = f'стр. {self.building},' if self.building else ''
-        str_apartment = f'кв. {self.apartment}' if self.apartment else ''
+        str_structure = f' корп. {self.structure},' if self.structure else ''
+        str_building = f' стр. {self.building},' if self.building else ''
+        str_apartment = f' кв. {self.apartment}' if self.apartment else ''
         return f'г. {self.city}, ул. {self.street}{str_house}{str_structure}{str_building}{str_apartment}'
 
 
@@ -159,7 +158,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='orders', blank=True,
                              on_delete=models.CASCADE)
-    dt = models.DateTimeField(auto_now_add=True)
+    dt = models.DateTimeField(verbose_name='Дата создания заказа', auto_now_add=True)
     state = models.CharField(verbose_name='Статус', choices=STATE_CHOICES, max_length=15)
     contact = models.ForeignKey(Contact, verbose_name='Контакт',
                                 blank=True, null=True,
