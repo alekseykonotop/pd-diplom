@@ -1,17 +1,15 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .forms import SignupForm, CustomUserChangeForm
-from .models import CustomUser
+from .models import User
 
 
 class CustomUserAdmin(UserAdmin):
-    add_form = SignupForm
-    form = CustomUserChangeForm
-    model = CustomUser
+    model = User
     list_display = ('email', 'last_name', 'first_name', 'middle_name',
-                    'company', 'position', 'type', 'is_staff', 'is_active', )
-    list_filter = ('email', 'last_name', 'first_name', 'middle_name', 'is_staff', 'is_active', )
+                    'company', 'position', 'type', 'is_active', )
+    list_filter = ('email', 'last_name', 'is_active', )
+    filter_horizontal = ()
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Дополнительные сведения', {
@@ -33,11 +31,11 @@ class CustomUserAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'password1', 'password2', 'last_name', 'first_name', 'middle_name',
-                       'company', 'position', 'type', 'is_staff', 'is_active')}),
+                       'company', 'position', 'type', 'is_active')}),
     )
     search_fields = ('email', 'last_name', )
     ordering = ('email', 'last_name', )
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, CustomUserAdmin)
 

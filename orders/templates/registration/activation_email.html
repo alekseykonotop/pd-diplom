@@ -1,5 +1,6 @@
 {% autoescape off %}
 {{ user }}, спасибо за выбор нашей компании.
 Для завершения регистрации пожалуйста перейдите по ссылке для подтверждения вашего аккаунта:
-http://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}
+http://{{ domain }}{% url 'users:user-register-confirm' token=token %}
+Либо используйте сгенерированный токен: {{ token }} для в своем сервисе
 {% endautoescape %}

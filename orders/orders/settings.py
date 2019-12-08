@@ -25,7 +25,7 @@ SECRET_KEY = '0fc!0%k6uhx1zjk277bvfj20mah1(nc^eq*v$8_b^0#(0sh4$z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'django_rest_passwordreset',
     'stores',
     'users',
 ]
@@ -129,7 +131,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Customer user model without username
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -143,3 +145,19 @@ EMAIL_HOST_USER = 'python.ru.2019.test@gmail.com'
 EMAIL_HOST_PASSWORD = 'pythonRU2019test'
 EMAIL_PORT = 587
 
+# Django rest framework settings
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 40,
+}
