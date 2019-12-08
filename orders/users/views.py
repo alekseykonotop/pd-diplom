@@ -33,43 +33,28 @@ class RegisterAccount(APIView):
     """
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
-        print(f'request class is: {type(request.data)}')
-        # проверяем обязательные аргументы
-        if {'first_name', 'middle_name', 'last_name', 'email', 'password', 'password2', 'company', 'position'}.issubset(request.data):
-            print(f'All data are in request.data')
-            # errors = {}
-
-            # проверяем совпадение паролей
+        if {'first_name', 'middle_name', 'last_name',
+                          'email', 'password', 'password2', 'company', 'position'}.issubset(request.data):
             if request.data['password'] != request.data['password2']:
-                print(f'password != password2')
                 return JsonResponse({'Status': False, 'Errors': {'password': ['Пароли не совпадают']}})
-            print(f'password == password2 ==> True')
-            # проверяем пароль на сложность
             try:
                 validate_password(request.data['password'])
             except Exception as password_error:
                 password_error_array = []
-                # noinspection PyTypeChecker
                 for item in password_error:
                     password_error_array.append(item)
                 return JsonResponse({'Status': False, 'Errors': {'password': password_error_array}})
             else:
-                # print('проверяем данные для уникальности имени пользователя')
-                # # проверяем данные для уникальности имени пользователя
-                # request.data._mutable = True
-                # request.data.update({})
                 user_serializer = UserSerializer(data=request.data)
                 if user_serializer.is_valid():
-                    # сохраняем пользователя
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
                     new_user_registered.send(sender=self.__class__,
-                                             user=user,
-                                             # user_id=user.id,
-                                             # user_full_name=user.get_full_name,
+                                             user_id=user.id,
                                              request=request)
-                    return JsonResponse({'Status': True, 'Message': 'Проверьте вашу почту.'})
+                    return JsonResponse({'Status': True, 'Message': 'Для завершения регистрации '
+                                                                    'проверьте свою почту.'})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
 

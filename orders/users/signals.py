@@ -3,9 +3,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver, Signal
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
-
 from .models import ConfirmEmailToken, User
 
 
@@ -40,34 +37,18 @@ def password_reset_token_created(sender, instance, reset_password_token, **kwarg
 
 
 @receiver(new_user_registered)
-def new_user_registered_signal(sender, user, **kwargs):
+def new_user_registered_signal(sender, user_id, **kwargs):
     """
     отправляем письмо с подтрердждением почты
     """
     # send an e-mail to the user
-    token, _ = ConfirmEmailToken.objects.get_or_create(user_id=user.id)
+    token, _ = ConfirmEmailToken.objects.get_or_create(user_id=user_id)
 
-    current_site = get_current_site(kwargs['request'])
-
-    # msg = EmailMultiAlternatives(
-    #     # title:
-    #     f'Активания вашего аккаунта пользователя {token.user.email} в самом лучшем интернет магазине.',
-    #     # message:
-    #     render_to_string('registration/activation_email.html', {
-    #         'user': user,
-    #         'domain': current_site.domain,
-    #         'token': token.key,
-    #     }),
-    #     # from:
-    #     settings.EMAIL_HOST_USER,
-    #     # to:
-    #     [token.user.email]
-    # )
     msg = EmailMultiAlternatives(
         # title:
         f'Активания вашего аккаунта пользователя {token.user.email} в самом лучшем интернет магазине.',
         # message:
-        token.key,
+        f'Ваш токен: {token.key} - сохраните его для последующей авторизации.',
         # from:
         settings.EMAIL_HOST_USER,
         # to:
