@@ -24,8 +24,8 @@ def get_timestamp_path(instance, filename):
 
 
 class Shop(models.Model):
-    name = models.CharField(max_length=50, verbose_name='Торговое название')
-    slug = models.SlugField(max_length=200, db_index=True)
+    name = models.CharField(max_length=100, verbose_name='Торговое название')
+    slug = models.SlugField(max_length=120, db_index=True, blank=True)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     user = models.OneToOneField(User, verbose_name='Пользователь',
                                 blank=True, null=True,
@@ -53,7 +53,7 @@ class Shop(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
-    slug = models.SlugField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=200, db_index=True, blank=True)
     shops = models.ManyToManyField(Shop, verbose_name='Магазины', related_name='categories', blank=True)
 
     class Meta:
