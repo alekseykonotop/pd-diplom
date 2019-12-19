@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # url(r'^$', views.home, name='home'),
     # path('api/', include('stores.urls', namespace='stores_api')),
-    path('users/', include('users.urls', namespace='users')),
+    path('user/', include('users.urls', namespace='users')),
+    path('api/v1/', include('stores.urls', namespace='stores'))
     # path('users/', include('django.contrib.auth.urls')),
 ]
