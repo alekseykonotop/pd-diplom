@@ -56,3 +56,16 @@ goods:
       "Разрешение (пикс)": 1792x828
       "Встроенная память (Гб)": 256
       "Цвет": синий
+  - id: 5267893
+    category: 1
+    model: Samsung/Flash Drive DUO Plus USB 3.1
+    name: Флешка Samsung USB 3.1 Flash Drive DUO Plus 128GB (серый)
+    price: 2320
+    price_rrc: 2320
+    quantity: 8
+    parameters:
+      "Интерфейс USB 3.1": Есть
+      "Интерфейс USB Type-C": Есть
+      "Водонепроницаемый корпув": Есть
+      "Встроенная память (Гб)": 128
+      "Цвет": серый
