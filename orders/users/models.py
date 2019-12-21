@@ -87,3 +87,27 @@ class ConfirmEmailToken(models.Model):
         return f'Password reset token for user {self.user}'
 
 
+class Contact(models.Model):
+    user = models.ForeignKey(User, verbose_name='Пользователь',
+                             related_name='contacts', blank=True,
+                             on_delete=models.CASCADE)
+
+    city = models.CharField(max_length=50, verbose_name='Город')
+    street = models.CharField(max_length=100, verbose_name='Улица')
+    house = models.CharField(max_length=15, verbose_name='Дом', blank=True)
+    structure = models.CharField(max_length=15, verbose_name='Корпус', blank=True)
+    building = models.CharField(max_length=15, verbose_name='Строение', blank=True)
+    apartment = models.CharField(max_length=15, verbose_name='Квартира', blank=True)
+    phone = models.CharField(max_length=20, verbose_name='Телефон')
+
+    class Meta:
+        verbose_name = 'Контакты пользователя'
+        verbose_name_plural = "Список контактов пользователя"
+
+    def __str__(self):
+        str_house = f', д. {self.house},' if self.house else ''
+        str_structure = f' корп. {self.structure},' if self.structure else ''
+        str_building = f' стр. {self.building},' if self.building else ''
+        str_apartment = f' кв. {self.apartment}' if self.apartment else ''
+        return f'г. {self.city}, ул. {self.street}{str_house}{str_structure}{str_building}{str_apartment}'
+

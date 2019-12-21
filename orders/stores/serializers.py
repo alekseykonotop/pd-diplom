@@ -1,16 +1,7 @@
 from rest_framework import serializers
 
-from .models import Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
-
-
-class ContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = ('id', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'user', 'phone')
-        read_only_fields = ('id',)
-        extra_kwargs = {
-            'user': {'write_only': True}
-        }
+from .models import Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order
+from users.serializers import ContactSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):

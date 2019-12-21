@@ -1,30 +1,17 @@
-# from django.http import HttpResponse
-# from django.shortcuts import render, redirect
-# from django.contrib.auth import login, authenticate
-# from rest_framework.generics import CreateAPIView
-# from rest_framework.response import Response
-#
-# from .forms import SignupForm
-# from django.contrib.sites.shortcuts import get_current_site
-# from django.utils.encoding import force_bytes, force_text
-# from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-# from django.template.loader import render_to_string
-# from .tokens import account_activation_token
-# from django.core.mail import EmailMessage
-# from django.contrib.auth import get_user_model
-#
-# from rest_framework.viewsets import GenericViewSet
-# from rest_framework.mixins import CreateModelMixin
-# from .serializers import UserCreateSerializer
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-UserModel = get_user_model()
-
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 from rest_framework.views import APIView
 from django.http import JsonResponse
-from .serializers import UserSerializer
+
 from .signals import new_user_registered
-from .models import ConfirmEmailToken
+from .models import ConfirmEmailToken, Contact
+from .serializers import UserSerializer, ContactSerializer
+
+UserModel = get_user_model()
 
 
 class RegisterAccount(APIView):
@@ -84,93 +71,136 @@ class ConfirmAccount(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
+class LoginAccount(APIView):
+    """
+    Класс для авторизации пользователей
+    """
+    # Авторизация методом POST
+    def post(self, request, *args, **kwargs):
+
+        if {'email', 'password'}.issubset(request.data):
+            user = authenticate(request, username=request.data['email'], password=request.data['password'])
+
+            if user is not None:
+                if user.is_active:
+                    token, _ = Token.objects.get_or_create(user=user)
+
+                    return JsonResponse({'Status': True, 'Token': token.key})
+
+            return JsonResponse({'Status': False, 'Errors': 'Не удалось авторизовать'})
+
+        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
+class AccountDetails(APIView):
+    """
+    Класс для работы данными пользователя
+    """
+
+    # получить данные
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    # Редактирование методом POST
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+        # проверяем обязательные аргументы
+
+        if 'password' in request.data:
+            errors = {}
+            # проверяем пароль на сложность
+            try:
+                validate_password(request.data['password'])
+            except Exception as password_error:
+                error_array = []
+                # noinspection PyTypeChecker
+                for item in password_error:
+                    error_array.append(item)
+                return JsonResponse({'Status': False, 'Errors': {'password': error_array}})
+            else:
+                request.user.set_password(request.data['password'])
+
+        # проверяем остальные данные
+        user_serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return JsonResponse({'Status': True})
+        else:
+            return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
 
 
+class ContactView(APIView):
+    """
+    Класс для работы с контактами покупателей
+    """
 
+    # получить мои контакты
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+        contact = Contact.objects.filter(
+            user_id=request.user.id)
+        serializer = ContactSerializer(contact, many=True)
+        return Response(serializer.data)
 
+    # добавить новый контакт
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
+        if {'city', 'street', 'phone'}.issubset(request.data):
+            request.data._mutable = True
+            request.data.update({'user': request.user.id})
+            serializer = ContactSerializer(data=request.data)
 
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'Status': True})
+            else:
+                JsonResponse({'Status': False, 'Errors': serializer.errors})
 
+        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+    # удалить контакт
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
+        items_sting = request.data.get('items')
+        if items_sting:
+            items_list = items_sting.split(',')
+            query = Q()
+            objects_deleted = False
+            for contact_id in items_list:
+                if contact_id.isdigit():
+                    query = query | Q(user_id=request.user.id, id=contact_id)
+                    objects_deleted = True
 
+            if objects_deleted:
+                deleted_count = Contact.objects.filter(query).delete()[0]
+                return JsonResponse({'Status': True, 'Удалено объектов': deleted_count})
+        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+    # редактировать контакт
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
+        if 'id' in request.data:
+            if request.data['id'].isdigit():
+                contact = Contact.objects.filter(id=request.data['id'], user_id=request.user.id).first()
+                print(contact)
+                if contact:
+                    serializer = ContactSerializer(contact, data=request.data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return JsonResponse({'Status': True})
+                    else:
+                        JsonResponse({'Status': False, 'Errors': serializer.errors})
 
-
-# === Archived records ===
-
-# class CreateUserView(CreateModelMixin, GenericViewSet):
-#     queryset = get_user_model().objects.all()
-#     serializer_class = UserCreateSerializer
-
-
-# class UserCreateAPIView(CreateAPIView):
-#     serializer_class = UserCreateSerializer
-#     queryset = UserModel.objects.all()
-
-
-
-# def signup(request):
-#     if request.method == 'POST':
-#         form = SignupForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             user.is_active = False
-#             user.save()
-#             current_site = get_current_site(request)
-#             subject = 'Активания вашего аккаунта в самом лучшем интернет магазине.'
-#             message = render_to_string('registration/activation_email.html', {
-#                 'user': user,
-#                 'domain': current_site.domain,
-#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-#                 'token': account_activation_token.make_token(user),
-#             })
-#             to_email = form.cleaned_data.get('email')
-#             email = EmailMessage(subject=subject, body=message, to=[to_email, ])
-#             email.send()
-#             return HttpResponse('Мы почти закончили. Пожалуйста проверьте сообщение на почте!')
-#     else:
-#         form = SignupForm()
-#     return render(request, 'registration/signup.html', {'form': form})
-#
-# from rest_framework import status
-# from rest_framework.decorators import api_view
-#
-# @api_view(['POST'])
-# def create_user(request):
-#     serializer = UserCreateSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-#
-# def activate(request, uidb64, token):
-#     try:
-#         uid = force_text(urlsafe_base64_decode(uidb64))
-#         user = UserModel.objects.get(pk=uid)
-#     except(TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
-#         user = None
-#     if user is not None and account_activation_token.check_token(user, token):
-#         user.is_active = True
-#         user.save()
-#         login(request, user)
-#         # return redirect('home')
-#         return HttpResponse('Спасибо, аккаунт подтвержден. Теперь вы можете перейти в созданию первого заказа.')
-#     else:
-#         return HttpResponse('Activation link is invalid!')
-#
-#
-# # Код ниже просто для закрепления материала из Туториала DRF
-# from .serializers import UserSerializer
-# from rest_framework import viewsets
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     print(f'Create new object of UserViewSet class!')
-#     queryset = UserModel.objects.all().order_by('-date_joined')
-#     serializer_class = UserSerializer
-
+        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})

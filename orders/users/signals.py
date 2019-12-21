@@ -6,6 +6,7 @@ from django_rest_passwordreset.signals import reset_password_token_created
 from .models import ConfirmEmailToken, User
 
 
+
 new_user_registered = Signal(
     providing_args=['user_id'],
 )
