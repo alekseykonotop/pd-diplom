@@ -12,6 +12,6 @@ urlpatterns = [
     path('details', AccountDetails.as_view(), name='user-details'),
     path('contact', ContactView.as_view(), name='user-contact'),
     path('login', LoginAccount.as_view(), name='user-login'),
-    path('user/password_reset', reset_password_request_token, name='password-reset'),
-    path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
+    path('password_reset', reset_password_request_token, name='password-reset'),
+    path('password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
 ]
