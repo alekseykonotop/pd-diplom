@@ -1,4 +1,6 @@
 from distutils.util import strtobool
+
+from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
 from rest_framework.response import Response
@@ -130,7 +132,6 @@ class ProductInfoView(APIView):
     Класс для поиска товаров
     """
     def get(self, request, *args, **kwargs):
-
         query = Q(shop__state=True)
         shop_id = request.query_params.get('shop_id')
         category_id = request.query_params.get('category_id')
@@ -175,17 +176,19 @@ class BasketView(APIView):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
-        items_sting = request.data.get('items')
-        if items_sting:
+        items_string = request.data.get('items')
+        if items_string:
             try:
-                items_dict = load_json(items_sting)
+                items_dict = load_json(items_string)
             except ValueError:
                 JsonResponse({'Status': False, 'Errors': 'Неверный формат запроса'})
             else:
                 basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
                 objects_created = 0
                 for order_item in items_dict:
-                    order_item.update({'order': basket.id})
+                    product_info = ProductInfo.objects.get(id=order_item['id'])
+                    order_item.update({'order': basket.id,
+                                       'product_info': product_info.id})
                     serializer = OrderItemSerializer(data=order_item)
                     if serializer.is_valid():
                         try:
@@ -196,7 +199,6 @@ class BasketView(APIView):
                             objects_created += 1
 
                     else:
-
                         JsonResponse({'Status': False, 'Errors': serializer.errors})
 
                 return JsonResponse({'Status': True, 'Создано объектов': objects_created})
@@ -220,7 +222,7 @@ class BasketView(APIView):
 
             if objects_deleted:
                 deleted_count = OrderItem.objects.filter(query).delete()[0]
-                return JsonResponse({'Status': True, 'Удалено объектов': deleted_count})
+                return JsonResponse({'S tatus': True, 'Удалено объектов': deleted_count})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
     # добавить позиции в корзину
