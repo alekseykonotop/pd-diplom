@@ -8,7 +8,7 @@ UserModel = get_user_model()
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = UserModel
-        fields = ['url', 'id', 'first_name', 'middle_name', 'last_name', 'email', 'company', 'position', 'type', ]
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'company', 'position', 'type', ]
         read_only_fields = ('id',)
 
 
